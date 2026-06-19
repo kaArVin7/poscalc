@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Posisi Saham Indonesia (KPSI) - Trading Tools</title>
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description" content="Kalkulator trading saham Indonesia otomatis dengan fraksi harga BEI terbaru dan kalkulasi komisi broker untuk menghitung risk reward, lot size, dan profit.">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Brand Header -->
+        <header>
+            <div class="brand">
+                <i class="fa-solid fa-chart-line brand-icon"></i>
+                <h1>Kalkulator Posisi Saham</h1>
+            </div>
+            <p class="subtitle">
+                Hitung modal pembelian, fraksi harga (tick size) BEI, manajemen risiko (Risk per Trade), dan proyeksi profit bersih secara presisi setelah dikurangi biaya broker.
+            </p>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Side: Input Panel -->
+            <section class="glass-card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <i class="fa-solid fa-sliders"></i> Input Parameter
+                    </span>
+                </div>
+                <div class="card-body">
+                    <form id="calculator-form" onsubmit="event.preventDefault();">
+                        
+                        <!-- Initial Capital -->
+                        <div class="form-group">
+                            <div class="label-wrapper">
+                                <label for="input-capital">Capital Awal (Modal)</label>
+                                <span class="label-info">Default Rp 10.000.000</span>
+                            </div>
+                            <div class="input-container has-prefix">
+                                <span class="input-prefix">Rp</span>
+                                <input type="text" id="input-capital" value="10.000.000" placeholder="10.000.000">
+                            </div>
+                        </div>
+
+                        <!-- Entry Price -->
+                        <div class="form-group">
+                            <div class="label-wrapper">
+                                <label for="input-entry">Harga Entry (Beli)</label>
+                                <span class="label-info" id="entry-tick-info">Tick: -</span>
+                            </div>
+                            <div class="input-container has-prefix has-suffix">
+                                <span class="input-prefix">Rp</span>
+                                <input type="text" id="input-entry" value="1.000" placeholder="1.000">
+                                <span class="input-suffix">/ lbr</span>
+                            </div>
+                            <div class="helper-text">
+                                <span id="entry-lot-price">1 Lot = Rp 100.000</span>
+                            </div>
+                        </div>
+
+                        <!-- Lot Quantity -->
+                        <div class="form-group">
+                            <div class="label-wrapper">
+                                <label for="input-lot">Jumlah Lot Dibeli</label>
+                                <span class="label-info" id="shares-count">1.000 lembar</span>
+                            </div>
+                            <div class="input-container has-suffix">
+                                <input type="text" id="input-lot" value="10" placeholder="10">
+                                <span class="input-suffix">Lot</span>
+                            </div>
+                        </div>
+
+                        <!-- Risk per Trade -->
+                        <div class="form-group">
+                            <div class="label-wrapper">
+                                <label for="input-risk">Risk per Trade</label>
+                                <span class="label-info" id="risk-amount-label">Rp 100.000</span>
+                            </div>
+                            <div class="input-container has-suffix">
+                                <input type="number" id="input-risk" value="1" step="0.1" min="0.1" max="100">
+                                <span class="input-suffix">%</span>
+                            </div>
+                            <div class="presets-grid">
+                                <button type="button" class="btn-preset" data-value="0.5">0.5%</button>
+                                <button type="button" class="btn-preset active" data-value="1">1.0%</button>
+                                <button type="button" class="btn-preset" data-value="1.5">1.5%</button>
+                                <button type="button" class="btn-preset" data-value="2">2.0%</button>
+                            </div>
+                        </div>
+
+                        <!-- Take Profit Price -->
+                        <div class="form-group">
+                            <div class="label-wrapper">
+                                <label for="input-tp">Harga Take Profit (TP)</label>
+                                <span class="label-info" id="tp-tick-info">Tick: -</span>
+                            </div>
+                            <div class="input-container has-prefix has-suffix">
+                                <span class="input-prefix">Rp</span>
+                                <input type="text" id="input-tp" value="1.100" placeholder="1.100">
+                                <span class="input-suffix">/ lbr</span>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </section>
+
+            <!-- Right Side: Output Panel & Insights -->
+            <section class="results-container">
+                
+                <!-- Summary Metrics Cards -->
+                <div class="summary-grid">
+                    
+                    <!-- Total Cost -->
+                    <div class="glass-card metric-card">
+                        <span class="metric-title">Total Cost Beli</span>
+                        <span class="metric-value" id="val-total-cost">Rp 1.001.500</span>
+                        <span class="metric-subvalue" id="val-total-cost-percent">10.01% dari Modal</span>
+                    </div>
+
+                    <!-- Risk Analysis Summary -->
+                    <div class="glass-card metric-card accent-danger">
+                        <span class="metric-title">Batas Toleransi Risiko</span>
+                        <span class="metric-value" id="val-risk-amount">Rp 100.000</span>
+                        <span class="metric-subvalue" id="val-risk-ticks">Setara ~20 Tick</span>
+                    </div>
+
+                    <!-- Potential Profit -->
+                    <div class="glass-card metric-card accent-success">
+                        <span class="metric-title">Proyeksi Profit Bersih</span>
+                        <span class="metric-value text-profit" id="val-net-profit">Rp 96.000</span>
+                        <span class="metric-subvalue" id="val-profit-percent">9.60% (R:R = 1.0)</span>
+                    </div>
+                </div>
+
+                <!-- Transaction Breakdowns and Visual scale -->
+                <div class="breakdown-row">
+                    
+                    <!-- Cost breakdown detail -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-receipt"></i> Rincian Transaksi</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="breakdown-list">
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">Nilai Pembelian Kotor</span>
+                                    <span class="breakdown-val" id="val-gross-buy">Rp 1.000.000</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">Broker Fee Beli (0.15%)</span>
+                                    <span class="breakdown-val" id="val-buy-fee">Rp 1.500</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">Nilai Penjualan Kotor</span>
+                                    <span class="breakdown-val" id="val-gross-sell">Rp 1.100.000</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span class="breakdown-label">Broker Fee Jual (0.25%)</span>
+                                    <span class="breakdown-val" id="val-sell-fee">Rp 2.750</span>
+                                </div>
+                                <div class="breakdown-item" style="border-top: 1px solid var(--border-color); margin-top: 0.25rem; padding-top: 0.5rem;">
+                                    <span class="breakdown-label">Hasil Penjualan Bersih</span>
+                                    <span class="breakdown-val text-profit" id="val-net-return">Rp 1.097.250</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Analysis Detail and Position Size visualizer -->
+                    <div class="glass-card visualizer-card">
+                        <div class="card-header" style="padding: 0 0 1rem 0; border-bottom: 1px solid var(--border-color);">
+                            <span class="card-title"><i class="fa-solid fa-shield-halved"></i> Manajemen Risiko</span>
+                        </div>
+                        <div class="breakdown-list" style="margin-top: 1rem;">
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Stop Loss Target (Presisi)</span>
+                                <span class="breakdown-val text-loss" id="val-sl-price">Rp 900</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Jarak Harga ke SL</span>
+                                <span class="breakdown-val" id="val-sl-diff">Rp 100 (10.0%)</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Risk-to-Reward Ratio</span>
+                                <span class="breakdown-val badge badge-primary" id="val-rr-ratio">1.0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="visual-scale">
+                            <div class="label-wrapper" style="margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Alokasi Modal dalam Trade</span>
+                                <span id="pos-allocation-text" style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">10%</span>
+                            </div>
+                            <div class="position-gauge-container">
+                                <div class="gauge-bar-wrapper">
+                                    <div class="gauge-bar-fill" id="pos-allocation-bar"></div>
+                                    <div class="gauge-bar-warning-line" title="Alokasi 50% Modal"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tick Matrix Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <i class="fa-solid fa-table-cells"></i> Matriks Pergerakan Fraksi Harga (Tick Matrix)
+                        </span>
+                        <span class="badge badge-primary" id="matrix-tick-info">Fraksi Rp 5</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="matrix-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tick</th>
+                                        <th>Harga Saham</th>
+                                        <th>Perubahan %</th>
+                                        <th>Nilai Bersih Jual</th>
+                                        <th>Net Profit / Loss</th>
+                                        <th>Rasio PnL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matrix-tbody">
+                                    <!-- Rendered dynamically in JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Footer Info -->
+        <footer>
+            <p>
+                Kalkulator Posisi Saham Indonesia &copy; 2026. Dibuat khusus untuk trader saham Indonesia.
+            </p>
+            <p style="margin-top: 0.25rem; font-size: 0.7rem;">
+                Seluruh perhitungan komisi broker disesuaikan dengan standar regulasi pajak & biaya bursa Indonesia. Sesuaikan kembali dengan fee sekuritas Anda masing-masing.
+            </p>
+        </footer>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
